@@ -1,4 +1,4 @@
-import {ICheckImageEnhanceResponse, IUploadImg, IUploadImgResponse} from "./types";
+import {ICheckImageEnhanceResponse, IUploadImg, IUploadImgPromise, IUploadImgResponse} from "./types";
 
 import axios from 'axios';
 
@@ -52,9 +52,7 @@ export class Autoenhance {
     }
 
 
-    async uploadImg(
-        props: IUploadImg
-    ): Promise<object | string> {
+    async uploadImg(props: IUploadImg): Promise<IUploadImgPromise | string> {
 
 
         const isItBufferImg = Buffer.isBuffer(props.imageBuffer);
@@ -96,10 +94,10 @@ export class Autoenhance {
                         },
                     }
                 );
-                return {'imageId': imageId, status, orderId: props.orderId};
+                return {imageId: imageId, status: status, orderId: props.orderId};
             }
 
-            return {'error': 'image was not uploaded', 'status': status};
+            return {error: 'image was not uploaded', status: status};
 
         } catch (error) {
             if (axios.isAxiosError(error)) {

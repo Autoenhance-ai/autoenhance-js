@@ -32,6 +32,11 @@ export interface IUploadImg {
     contrastBoost?: 'LOW' | 'MEDIUM' | 'HIGH';
     threesixty?: boolean;
     hdr?: boolean;
+}
 
-
+export interface IUploadImgPromise {
+    imageId?: string;
+    status: number;
+    orderId?: string | null;
+    error?: string;
 }
