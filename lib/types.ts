@@ -22,14 +22,14 @@ export interface ICheckImageEnhanceResponse {
 
 export interface IUploadImg {
     imgName: string;
-    orderId?: string;
+    orderId?: string | null;
     imageBuffer: object;
     enhanceType?: string;
     verticalCorrection?: boolean;
     skyReplacement?: boolean;
-    skyType?: string;
-    cloudType?: string;
-    contrastBoost?: string;
+    skyType?: 'UK_SUMMER' | 'UK_WINTER' | 'USA_SUMMER';
+    cloudType?: 'CLEAR' | 'LOW_CLOUD' | 'HIGH_CLOUD';
+    contrastBoost?: 'LOW' | 'MEDIUM' | 'HIGH';
     threesixty?: boolean;
     hdr?: boolean;
 

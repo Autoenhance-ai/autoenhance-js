@@ -75,7 +75,6 @@ export class Autoenhance {
             contrast_boost: props.contrastBoost,
             threesixty: props.threesixty,
             hdr: props.hdr
-
         };
 
         try {
@@ -97,7 +96,7 @@ export class Autoenhance {
                         },
                     }
                 );
-                return {'imageId': imageId, status};
+                return {'imageId': imageId, status, orderId: props.orderId};
             }
 
             return {'error': 'image was not uploaded', 'status': status};
