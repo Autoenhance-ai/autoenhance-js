@@ -1,0 +1,9 @@
+{
+  "watch": [
+    "lib"
+  ],
+  "ext": ".ts,.js",
+  "ignore": [],
+  "exec": "npx ts-node ./test.ts",
+  "start:dev": "npx nodemon"
+}
