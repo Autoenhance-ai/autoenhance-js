@@ -13,46 +13,6 @@ export class Autoenhance {
     }
 
     /**
-     * Returns image properties.
-     *
-     * @remarks
-     *  Check image status by image id.
-     *
-     * @param imageId - Id of the image.
-     * @returns {
-     *   image_id: '0c35b440-e9ae70cce6ff',
-     *   image_name: 'image.jpg',
-     *   image_type: 'jpeg',
-     *   enhance_type: 'property',
-     *   date_added: 1670391883226,
-     *   user_id: 'auth0|6363dbcb77f7e50',
-     *   status: 'processing',
-     *   downloaded: false
-     * }
-     *
-     * @beta
-     */
-
-    async checkImageEnhance(imageId: string): Promise<ICheckImageEnhanceResponse | string> {
-
-
-        try {
-            const {data} = await axios.get<ICheckImageEnhanceResponse>(`${this.baseUrl}image/${imageId}`);
-            return data;
-
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.log('error message: ', error.message);
-                return error.message;
-            } else {
-                console.log('unexpected error: ', error);
-                return 'An unexpected error occurred';
-            }
-        }
-    }
-
-
-    /**
      * Returns uploaded image properties.
      *
      * @remarks
@@ -147,5 +107,46 @@ export class Autoenhance {
             }
         }
     };
+
+
+    /**
+     * Returns image properties.
+     *
+     * @remarks
+     *  Check image status by image id.
+     *
+     * @param imageId - Id of the image.
+     * @returns {
+     *   image_id: '0c35b440-e9ae70cce6ff',
+     *   image_name: 'image.jpg',
+     *   image_type: 'jpeg',
+     *   enhance_type: 'property',
+     *   date_added: 1670391883226,
+     *   user_id: 'auth0|6363dbcb77f7e50',
+     *   status: 'processing',
+     *   downloaded: false
+     * }
+     *
+     * @beta
+     */
+
+    async checkImageEnhance(imageId: string): Promise<ICheckImageEnhanceResponse | string> {
+
+
+        try {
+            const {data} = await axios.get<ICheckImageEnhanceResponse>(`${this.baseUrl}image/${imageId}`);
+            return data;
+
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.log('error message: ', error.message);
+                return error.message;
+            } else {
+                console.log('unexpected error: ', error);
+                return 'An unexpected error occurred';
+            }
+        }
+    }
+
 
 }
