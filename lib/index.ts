@@ -12,29 +12,29 @@ export class Autoenhance {
         axios.defaults.headers.common['x-api-key'] = apiKey;
     }
 
+    /**
+     * Returns image properties.
+     *
+     * @remarks
+     *  Check image status by image id.
+     *
+     * @param imageId - Id of the image.
+     * @returns {
+     *   image_id: '0c35b440-e9ae70cce6ff',
+     *   image_name: 'image.jpg',
+     *   image_type: 'jpeg',
+     *   enhance_type: 'property',
+     *   date_added: 1670391883226,
+     *   user_id: 'auth0|6363dbcb77f7e50',
+     *   status: 'processing',
+     *   downloaded: false
+     * }
+     *
+     * @beta
+     */
 
     async checkImageEnhance(imageId: string): Promise<ICheckImageEnhanceResponse | string> {
 
-        /**
-         * Returns image properties.
-         *
-         * @remarks
-         *  Check image status by image id.
-         *
-         * @param imageId - Id of the image.
-         * @returns {
-         *   image_id: '0c35b440-e9ae70cce6ff',
-         *   image_name: 'image.jpg',
-         *   image_type: 'jpeg',
-         *   enhance_type: 'property',
-         *   date_added: 1670391883226,
-         *   user_id: 'auth0|6363dbcb77f7e50',
-         *   status: 'processing',
-         *   downloaded: false
-         * }
-         *
-         * @beta
-         */
 
         try {
             const {data} = await axios.get<ICheckImageEnhanceResponse>(`${this.baseUrl}image/${imageId}`);
@@ -52,38 +52,46 @@ export class Autoenhance {
     }
 
 
+    /**
+     * Returns uploaded image properties.
+     *
+     * @remarks
+     *  Upload image.
+     *
+     * @param props.imgName - name of the image house.jpg or house.png.
+     *
+     * @param props.orderId - pass image as a buffer.
+     *
+     * @param props.imageBuffer - UUID string to link a group of images under one order (e.g. b1aa3999-7908-45c9-9a99-82e25cf5de8e).
+     *
+     * @param props.enhanceType - Type of image you want enhanced (e.g. property or food).
+     *
+     * @param props.verticalCorrection - Enable/Disable vertical correction. By default, this is true.
+     *
+     * @param props.skyReplacement - Enable/Disable sky replacement. By default, this is true.
+     *
+     * @param props.skyType - Set specific sky type. (Options: UK_SUMMER, UK_WINTER or USA_SUMMER). Default is UK_SUMMER.
+     *
+     * @param props.cloudType - Set specific cloud type. (Options: CLEAR, LOW_CLOUD or HIGH_CLOUD). Default is HIGH_CLOUD.
+     *
+     * @param props.contrastBoost - Set contrast boost level. (Options: NONE, LOW, MEDIUM or HIGH). Default is LOW.
+     *
+     * @param props.threesixty - Enable/Disable 360 enhancement. By default, this is false. 360 enhancement requires a 360 panorama.
+     *
+     * @param props.hdr -  Enable/Disable HDR. By default, this is false.
+     *
+     * HDR will require multiple brackets, and an additional API call. Read more on how to enhance HDR.
+     *
+     * @returns {
+     *   imageId: 'e2c7-7a942e07fe1f',
+     *   status: 200,
+     *   orderId: '3dasdy324F342'
+     * }
+     * @beta
+     */
+
     async uploadImg(props: IUploadImg): Promise<IUploadImgPromise | string> {
 
-
-        /**
-         * Returns uploaded image properties.
-         *
-         * @remarks
-         *  Upload image.
-         *
-         * @param imgName - name of the image house.jpg or house.png.
-         * @param orderId - pass image as a buffer.
-         *
-         * Optional fields
-         * @param imageBuffer - UUID string to link a group of images under one order (e.g. b1aa3999-7908-45c9-9a99-82e25cf5de8e).
-         * @param enhanceType - Type of image you want enhanced (e.g. property or food).
-         * @param verticalCorrection - Enable/Disable vertical correction. By default, this is true.
-         * @param skyReplacement - Enable/Disable sky replacement. By default, this is true.
-         * @param skyType - Set specific sky type. (Options: UK_SUMMER, UK_WINTER or USA_SUMMER). Default is UK_SUMMER.
-         * @param cloudType - Set specific cloud type. (Options: CLEAR, LOW_CLOUD or HIGH_CLOUD). Default is HIGH_CLOUD.
-         * @param contrastBoost - Set contrast boost level. (Options: NONE, LOW, MEDIUM or HIGH). Default is LOW.
-         * @param threesixty - Enable/Disable 360 enhancement. By default, this is false. 360 enhancement requires a 360 panorama.
-         * @param hdr -  Enable/Disable HDR. By default, this is false.
-         *                     HDR will require multiple brackets, and an additional API call. Read more on how to enhance HDR.
-
-         * @returns {
-         *   imageId: 'e2c7-7a942e07fe1f',
-         *   status: 200,
-         *   orderId: '3dasdy324F342'
-         * }
-         *
-         * @beta
-         */
 
         const isItBufferImg = Buffer.isBuffer(props.imageBuffer);
         if (!isItBufferImg) throw new Error('image uploaded must be image buffer');
@@ -141,4 +149,3 @@ export class Autoenhance {
     };
 
 }
-
