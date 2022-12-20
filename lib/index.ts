@@ -1,4 +1,10 @@
-import {ICheckImageEnhanceResponse, IUploadImg, IUploadImgPromise, IUploadImgResponse} from "./types";
+import {
+    ICheckImageEnhanceResponse,
+    ICheckOrderEnhance,
+    IUploadImg,
+    IUploadImgPromise,
+    IUploadImgResponse
+} from "./types";
 
 import axios from 'axios';
 
@@ -110,7 +116,7 @@ export class Autoenhance {
 
 
     /**
-     * Returns image properties.
+     * Returns image status properties.
      *
      * @remarks
      *  Check image status by image id.
@@ -146,7 +152,51 @@ export class Autoenhance {
                 return 'An unexpected error occurred';
             }
         }
-    }
+    };
+
+    /**
+     * https://api.autoenhance.ai/v2/order/:order_id
+     *
+     * Returns multiple images status properties.
+     *
+     * @remarks
+     * Check images status by order id.
+     *
+     * @param orderId - Id of the order.
+     *
+     * @returns {{
+     * 'images': [
+     * {'image_id': '098c8f40-b3bd-4301-98eb-2a51be989dac', 'order_id': '3212310-dfs-fdsg0',
+     *  'image_name': 'image.jpg', 'image_type': 'jpeg', 'enhance_type': 'property', 'date_added': 1669056195000,
+     *  'user_id': 'auth0|6363dbcb77f7e74122ea6350', 'status': 'processed', 'sky_replacement': true,
+     *  'vertical_correction': true, 'vibrant': false},
+     *
+     *  {'image_id': 'd19d9cfa-dccf-466c-a2cf-8df761317db3', 'order_id': '3212310-dfs-fdsg0',
+     *    'image_name': 'image.jpg', 'image_type': 'jpeg', 'enhance_type': 'property', 'date_added': 1669056341000,
+     *    'user_id': 'auth0|6363dbcb77f7e74122ea6350', 'status': 'processed', 'sky_replacement': true,
+     *    'vertical_correction': true, 'vibrant': false}
+     *     ], 'is_processing': false, 'order_id': '3212310-dfs-fdsg0'
+     *    }}
+     *
+     * @beta
+     */
+
+    async checkOrderEnhance(orderId: string): Promise<ICheckOrderEnhance | string> {
+
+        try {
+            const {data} = await axios.get<ICheckOrderEnhance>(`${this.baseUrl}order/${orderId}`);
+            return data;
+
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.log('error message: ', error.message);
+                return error.message;
+            } else {
+                console.log('unexpected error: ', error);
+                return 'An unexpected error occurred';
+            }
+        }
+    };
 
 
 }
