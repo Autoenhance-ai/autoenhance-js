@@ -19,6 +19,8 @@ export class Autoenhance {
     }
 
     /**
+     * https://api.autoenhance.ai/v2/image
+     *
      * Returns uploaded image properties.
      *
      * @remarks
@@ -116,6 +118,8 @@ export class Autoenhance {
 
 
     /**
+     * https://api.autoenhance.ai/v2/image/:image_id
+     *
      * Returns image status properties.
      *
      * @remarks
