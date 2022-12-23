@@ -1,6 +1,6 @@
 import {
     ICheckImageEnhanceResponse,
-    ICheckOrderEnhance,
+    ICheckOrderEnhance, IPreviewEnhancedImg, IPreviewEnhancedImgConfig,
     IUploadImg,
     IUploadImgPromise,
     IUploadImgResponse
@@ -67,6 +67,7 @@ export class Autoenhance {
         const contentType = mime.lookup(props.imgName);
         if (!contentType) throw new Error('Incorrect value in image name');
 
+        console.log(contentType)
         const body = {
             image_name: props.imgName,
             content_type: contentType,
@@ -198,6 +199,47 @@ export class Autoenhance {
             } else {
                 console.log('unexpected error: ', error);
                 return 'An unexpected error occurred';
+            }
+        }
+    };
+
+
+    /**
+     * https://api.autoenhance.ai/v2/image/:image_id/preview
+     *
+     * Returns image buffer.
+     *
+     * @remarks
+     * Receive an image buffer by providing img id.
+     *
+     * @param imageId - Id of the uploaded img.
+     *
+     * @returns
+     * {
+     *     data: <Buffer ff d8 ff e0 00 10 4a 46 49... 47136 more bytes>,
+     *
+     *     status: 200
+     *
+     * }
+     *
+     * @beta
+     */
+
+    async previewEnhancedImg(imageId: string): Promise<IPreviewEnhancedImgConfig> {
+        try {
+            const {data, status} = await axios.get<IPreviewEnhancedImg>(`${this.baseUrl}image/${imageId}/preview`, {
+                responseType: 'arraybuffer'
+            });
+
+            return {data, status};
+
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.log('error message: ', error.message);
+                return {error: error.message};
+            } else {
+                console.log('unexpected error: ', error);
+                return {error: 'An unexpected error occurred'};
             }
         }
     };

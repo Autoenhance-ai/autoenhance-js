@@ -67,3 +67,14 @@ export interface ICheckOrderEnhanceConfig {
     vertical_correction: boolean;
     vibrant: boolean
 }
+
+export interface IPreviewEnhancedImg {
+    data: Buffer
+}
+
+
+export interface IPreviewEnhancedImgConfig {
+    data?: IPreviewEnhancedImg;
+    status?: number
+    error?: string
+}
