@@ -227,16 +227,18 @@ export class Autoenhance {
 
     async previewEnhancedImg(imageId: string): Promise<IPreviewEnhancedImgConfig> {
         try {
-            const {data, status} = await axios.get<IPreviewEnhancedImg>(`${this.baseUrl}image/${imageId}/preview`, {
+            const {
+                data: response,
+                status
+            } = await axios.get<IPreviewEnhancedImg>(`${this.baseUrl}image/${imageId}/preview`, {
                 responseType: 'arraybuffer'
             });
 
-            return {data, status};
-
+            return {data: response.data, status};
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 console.log('error message: ', error.message);
-                return {error: error.message};
+                return {error: error.message || ''};
             } else {
                 console.log('unexpected error: ', error);
                 return {error: 'An unexpected error occurred'};

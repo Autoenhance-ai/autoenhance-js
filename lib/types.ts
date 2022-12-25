@@ -65,16 +65,15 @@ export interface ICheckOrderEnhanceConfig {
     order_id: string;
     sky_replacement: boolean;
     vertical_correction: boolean;
-    vibrant: boolean
+    vibrant: boolean;
 }
 
 export interface IPreviewEnhancedImg {
-    data: Buffer
+    data: Buffer;
 }
 
-
 export interface IPreviewEnhancedImgConfig {
-    data?: IPreviewEnhancedImg;
-    status?: number
-    error?: string
+    data?: Buffer;
+    status?: number;
+    error?: string;
 }
