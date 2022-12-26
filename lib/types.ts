@@ -102,3 +102,10 @@ export interface IReportEnhancementPromise {
     status: number;
 }
 
+
+export interface IwebOptimisedImgConfig {
+    data?: Buffer;
+    status?: number;
+    error?: string;
+}
+

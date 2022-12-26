@@ -3,7 +3,7 @@ import {
     ICheckOrderEnhance, IPreviewEnhancedImg, IPreviewEnhancedImgConfig, IReportEnhancement, IReportEnhancementPromise,
     IUploadImg,
     IUploadImgPromise,
-    IUploadImgResponse
+    IUploadImgResponse, IwebOptimisedImgConfig
 } from "./types";
 
 import axios from 'axios';
@@ -235,6 +235,50 @@ export class Autoenhance {
 
             return {data: response.data, status};
         } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.log('error message: ', error.message);
+                return {error: error.message || ''};
+            } else {
+                console.log('unexpected error: ', error);
+                return {error: 'An unexpected error occurred'};
+            }
+        }
+    };
+
+    /**
+     * https://api.autoenhance.ai/v2/image/:image_id/enhanced
+     *
+     * Returns image buffer.
+     *
+     * @remarks
+     * Receive an enhanced image buffer by providing img id.
+     *
+     * @param imageId - Id of the uploaded img.
+     *
+     * @returns
+     * {
+     *     data: <Buffer ff d8 ff e0 00 10 4a 46 49... 47136 more bytes>,
+     *
+     *     status: 200
+     *
+     * }
+     *
+     * @beta
+     */
+
+    async webOptimisedImg(imageId: string): Promise<IwebOptimisedImgConfig> {
+        try {
+            const {
+                data,
+                status
+            } = await axios.get(`${this.baseUrl}image/${imageId}/enhanced`, {
+                params: {'size': 'small'},
+                responseType: 'arraybuffer'
+            });
+            return {data, status};
+
+        } catch (error) {
+
             if (axios.isAxiosError(error)) {
                 console.log('error message: ', error.message);
                 return {error: error.message || ''};
