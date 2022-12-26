@@ -108,4 +108,9 @@ export interface IwebOptimisedImgConfig {
     status?: number;
     error?: string;
 }
+export interface IFullResolEnhancedImgConfig {
+    data?: Buffer;
+    status?: number;
+    error?: string;
+}
 
