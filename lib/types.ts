@@ -77,3 +77,28 @@ export interface IPreviewEnhancedImgConfig {
     status?: number;
     error?: string;
 }
+
+
+export interface IReportEnhancement {
+    imageId: string;
+    comment?: string;
+    category: {
+        download?: boolean;
+        lens_correction?: boolean;
+        hdr?: boolean;
+        perspective_correction?: boolean;
+        processing?: boolean;
+        image_quality?: boolean;
+        sky_replacement?: boolean;
+        contrast?: boolean;
+        white_balance?: boolean;
+        other: boolean;
+    };
+}
+
+
+export interface IReportEnhancementPromise {
+    response: { message: string };
+    status: number;
+}
+

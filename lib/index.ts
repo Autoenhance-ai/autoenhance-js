@@ -1,6 +1,6 @@
 import {
     ICheckImageEnhanceResponse,
-    ICheckOrderEnhance, IPreviewEnhancedImg, IPreviewEnhancedImgConfig,
+    ICheckOrderEnhance, IPreviewEnhancedImg, IPreviewEnhancedImgConfig, IReportEnhancement, IReportEnhancementPromise,
     IUploadImg,
     IUploadImgPromise,
     IUploadImgResponse
@@ -67,7 +67,6 @@ export class Autoenhance {
         const contentType = mime.lookup(props.imgName);
         if (!contentType) throw new Error('Incorrect value in image name');
 
-        console.log(contentType)
         const body = {
             image_name: props.imgName,
             content_type: contentType,
@@ -239,6 +238,63 @@ export class Autoenhance {
             if (axios.isAxiosError(error)) {
                 console.log('error message: ', error.message);
                 return {error: error.message || ''};
+            } else {
+                console.log('unexpected error: ', error);
+                return {error: 'An unexpected error occurred'};
+            }
+        }
+    };
+
+
+    /**
+     * https://api.autoenhance.ai/v2/image/:image_id/report
+     *
+     * Returns  successfully reported image message.
+     *
+     * @remarks
+     * Report the img by providing img id.
+     *
+     * @param props.imageId - Id of the reporting img.
+     *
+     *
+     * @param props.category - An array of items that the image failed at. e.g. skyreplacement, lenscorrection etc.
+     *                          ["skyreplacement","lenscorrection"]
+     *
+     * @param props.comment - An optional text comment to provide more infomation about why the image failed.
+     *                                 When false the AI will not try to detect or replace the sky in the image.
+     *                                 e.g. Sky was not replaced in image and the len has not been corrected.
+     *
+     *
+     * @returns
+     * { response: { message: 'successfully reported image' }, status: 200 }
+     *
+     * @beta
+     */
+
+    async reportEnhancement(props: IReportEnhancement): Promise<IReportEnhancementPromise | { error: string }> {
+
+        const categories = Object.keys(props.category);
+
+        const body = {
+            'category': categories,
+            'comment': props.comment,
+
+        };
+        try {
+
+            const {
+                data: response, status
+            } = await axios.post(`${this.baseUrl}image/${props.imageId}/report`, body);
+
+            return {response, status};
+
+        } catch (error) {
+
+            if (axios.isAxiosError(error)) {
+
+                console.log('error message: ', error.message);
+                return {error: error.message || ''};
+
             } else {
                 console.log('unexpected error: ', error);
                 return {error: 'An unexpected error occurred'};
