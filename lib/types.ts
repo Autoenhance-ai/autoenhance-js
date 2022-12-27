@@ -78,24 +78,22 @@ export interface IPreviewEnhancedImgConfig {
     error?: string;
 }
 
+type Category = 'download'
+    | 'lens_correction'
+    | 'hdr'
+    | 'perspective_correction'
+    | 'processing'
+    | 'image_quality'
+    | 'sky_replacement'
+    | 'contrast'
+    | 'white_balance'
+    | 'other'
 
 export interface IReportEnhancement {
     imageId: string;
     comment?: string;
-    category: {
-        download?: boolean;
-        lens_correction?: boolean;
-        hdr?: boolean;
-        perspective_correction?: boolean;
-        processing?: boolean;
-        image_quality?: boolean;
-        sky_replacement?: boolean;
-        contrast?: boolean;
-        white_balance?: boolean;
-        other: boolean;
-    };
+    category: Category[]
 }
-
 
 export interface IReportEnhancementPromise {
     response: { message: string };
@@ -108,9 +106,32 @@ export interface IwebOptimisedImgConfig {
     status?: number;
     error?: string;
 }
+
 export interface IFullResolEnhancedImgConfig {
     data?: Buffer;
     status?: number;
     error?: string;
 }
 
+export interface IEditEnhancedImg {
+    imageId: string;
+    verticalCorrection?: boolean;
+    skyReplacement?: boolean;
+    skyType?: 'UK_SUMMER' | 'UK_WINTER' | 'USA_SUMMER';
+    cloudType?: 'CLEAR' | 'LOW_CLOUD' | 'HIGH_CLOUD';
+    contrastBoost?: 'LOW' | 'MEDIUM' | 'HIGH';
+    threesixty?: boolean;
+
+}
+
+export interface IEditEnhancedImgPromise {
+    image_id: string,
+    image_name: string,
+    image_type: string,
+    enhance_type: string,
+    date_added: number,
+    user_id: string,
+    status: string,
+    downloaded: boolean
+
+}

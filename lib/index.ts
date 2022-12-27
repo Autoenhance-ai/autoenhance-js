@@ -1,6 +1,6 @@
 import {
     ICheckImageEnhanceResponse,
-    ICheckOrderEnhance,
+    ICheckOrderEnhance, IEditEnhancedImg, IEditEnhancedImgPromise,
     IFullResolEnhancedImgConfig,
     IPreviewEnhancedImg,
     IPreviewEnhancedImgConfig,
@@ -341,6 +341,89 @@ export class Autoenhance {
 
 
     /**
+     * https://api.autoenhance.ai/v2/image/:process
+     *
+     * Return edited image status properties.
+     *
+     * @remarks
+     *
+     *         If the image should have a sky replacement,
+     *         and it hasn’t been achieved by the AI,
+     *         then you can set sky_replacement: true,
+     *         and the AI will apply a sky replacement to the image.
+     *         If the image shouldn’t have a sky
+     *         replacement, but the AI has applied one,
+     *         then you can set sky_replacement: false,
+     *         to disable the sky replacement.
+     *
+     * @param props.orderId - Id of the img.
+     *
+     * @param props.verticalCorrection - boolean True to enable perspective correction and false to disable.
+     *
+     * @param props.skyReplacement - boolean When true the AI will try to replace the sky if it detects a sky in the image.
+     *                                 When false the AI will not try to detect or replace the sky in the image.
+     * @param props.skyType - string Set specific sky type. (Options: UK_SUMMER, UK_WINTER or USA_SUMMER). Default is UK_SUMMER.
+     *
+     * @param props.cloudType - string Set specific cloud type. (Options: CLEAR, LOW_CLOUD or HIGH_CLOUD). Default is HIGH_CLOUD.
+     *
+     * @param props.contrastBoost string Set contrast boost level. (Options: NONE, LOW, MEDIUM or HIGH). Default is LOW.
+     *
+     * @param props.threesixty -boolean Enable/Disable 360 enhancement. By default, this is false. 360 enhancement requires a 360 panorama.
+     *
+     *
+     * @returns {
+     *   image_id: '7c7e666b-896f-43fa-bfb1-b49af6da8fa3',
+     *   image_name: 'image.jpg',
+     *   image_type: 'jpeg',
+     *   enhance_type: 'property',
+     *   date_added: 1671724962598,
+     *   user_id: 'auth0|6363dbcb77f7e74122ea6350',
+     *   status: 'processing',
+     *   downloaded: true
+     * }
+     *
+     * @beta
+     */
+
+
+
+    async editEnhancedImg(props: IEditEnhancedImg): Promise<IEditEnhancedImgPromise | string> {
+
+
+        const body = {
+            vertical_correction: props.verticalCorrection,
+            sky_replacement: props.skyReplacement,
+            sky_type: props.skyType,
+            cloud_type: props.cloudType,
+            contrast_boost: props.contrastBoost,
+            threesixty: props.threesixty,
+        };
+
+        try {
+
+            const {
+                data
+            } = await axios.post<IEditEnhancedImgPromise>(`${this.baseUrl}image/${props.imageId}/process`,
+                body,
+            );
+            return data;
+
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+
+                console.log('error message: ', error.message);
+                return error.message;
+
+            } else {
+                console.log('unexpected error: ', error);
+
+                return 'An unexpected error occurred';
+            }
+        }
+    };
+
+
+    /**
      * https://api.autoenhance.ai/v2/image/:image_id/report
      *
      * Returns  successfully reported image message.
@@ -367,18 +450,18 @@ export class Autoenhance {
 
     async reportEnhancement(props: IReportEnhancement): Promise<IReportEnhancementPromise | { error: string }> {
 
-        const categories = Object.keys(props.category);
 
         const body = {
-            'category': categories,
+            'category': props.category,
             'comment': props.comment,
 
         };
+
         try {
 
             const {
                 data: response, status
-            } = await axios.post(`${this.baseUrl}image/${props.imageId}/report`, body);
+            } = await axios.post<{ message: string }>(`${this.baseUrl}image/${props.imageId}/report`, body);
 
             return {response, status};
 
