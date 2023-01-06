@@ -19,13 +19,6 @@ export interface IUploadImgPromise {
     error?: string;
 }
 
-export interface IUploadImgResponse {
-    image_id: string;
-    image_type: string;
-    s3PutObjectUrl: string
-}
-
-
 export interface ICheckImageEnhanceConfig {
     image_id: string;
     image_name: string;
@@ -36,11 +29,6 @@ export interface ICheckImageEnhanceConfig {
     status: string;
     downloaded: boolean;
 }
-
-export interface ICheckImageEnhanceResponse {
-    data: ICheckImageEnhanceConfig;
-}
-
 
 export interface ICheckOrderEnhance {
     data: ICheckOrderData
@@ -68,16 +56,6 @@ export interface ICheckOrderEnhanceConfig {
     vibrant: boolean;
 }
 
-export interface IPreviewEnhancedImg {
-    data: Buffer;
-}
-
-export interface IPreviewEnhancedImgConfig {
-    data?: Buffer;
-    status?: number;
-    error?: string;
-}
-
 type Category = 'download'
     | 'lens_correction'
     | 'hdr'
@@ -93,24 +71,6 @@ export interface IReportEnhancement {
     imageId: string;
     comment?: string;
     category: Category[]
-}
-
-export interface IReportEnhancementPromise {
-    response: { message: string };
-    status: number;
-}
-
-
-export interface IwebOptimisedImgConfig {
-    data?: Buffer;
-    status?: number;
-    error?: string;
-}
-
-export interface IFullResolEnhancedImgConfig {
-    data?: Buffer;
-    status?: number;
-    error?: string;
 }
 
 export interface IEditEnhancedImg {

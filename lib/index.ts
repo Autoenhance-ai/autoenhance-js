@@ -1,28 +1,31 @@
 import {
-    ICheckImageEnhanceResponse,
-    ICheckOrderEnhance, IEditEnhancedImg, IEditEnhancedImgPromise,
-    IFullResolEnhancedImgConfig,
-    IPreviewEnhancedImg,
-    IPreviewEnhancedImgConfig,
+    ICheckImageEnhanceConfig,
+    ICheckOrderEnhance,
+    IEditEnhancedImg,
+    IEditEnhancedImgPromise,
     IReportEnhancement,
-    IReportEnhancementPromise,
     IUploadImg,
     IUploadImgPromise,
-    IUploadImgResponse,
-    IwebOptimisedImgConfig
 } from "./types";
-
-import axios from 'axios';
 
 import * as mime from 'mime-types';
 
+const importDynamic = new Function('modulePath', 'return import(modulePath)');
+
+const fetch = async (...args: any[]) => {
+    const module = await importDynamic('node-fetch');
+    return module.default(...args);
+};
+
 export class Autoenhance {
     private readonly baseUrl: string;
+    public apiKey: string;
 
     constructor(apiKey: string) {
         this.baseUrl = 'https://api.autoenhance.ai/v2/';
-        axios.defaults.headers.common['x-api-key'] = apiKey;
+        this.apiKey = apiKey;
     }
+
 
     /**
      * https://api.autoenhance.ai/v2/image
@@ -66,7 +69,6 @@ export class Autoenhance {
 
     async uploadImg(props: IUploadImg): Promise<IUploadImgPromise | string> {
 
-
         const isItBufferImg = Buffer.isBuffer(props.imageBuffer);
         if (!isItBufferImg) throw new Error('image uploaded must be image buffer');
 
@@ -88,39 +90,36 @@ export class Autoenhance {
         };
 
         try {
-
-            const {data, status} = await axios.post<IUploadImgResponse>(`${this.baseUrl}image`,
-                body
-            );
-
-            const imageId = data.image_id;
-            const s3PutObjectUrl = data.s3PutObjectUrl;
-
-            if (status === 200) {
-                const {status} = await axios.put(
-                    s3PutObjectUrl,
-                    props.imageBuffer,
-                    {
+            const post = await fetch(`${this.baseUrl}image`, {
+                method: 'post',
+                body: JSON.stringify(body),
+                headers: {
+                    'x-api-key': this.apiKey
+                }
+            });
+            if (post.ok) {
+                const data = await post.json()
+                const put = await fetch(data.s3PutObjectUrl, {
+                        method: 'put',
+                        body: props.imageBuffer,
                         headers: {
                             'Content-Type': contentType,
-                        },
+                        }
                     }
-                );
-                return {imageId: imageId, status: status, orderId: props.orderId};
-            }
+                )
+                return {imageId: data.image_id, status: put.status, orderId: props.orderId};
 
-            return {error: 'image was not uploaded', status: status};
+            }
+            return {error: 'image was not uploaded', status: post.status};
 
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.log('error message: ', error.message);
-                return error.message;
-            } else {
-                console.log('unexpected error: ', error);
-                return 'An unexpected error occurred';
+            if (error instanceof Error) {
+                console.log(error.message)
             }
         }
-    };
+        return 'An unexpected error occurred'
+
+    }
 
 
     /**
@@ -146,23 +145,21 @@ export class Autoenhance {
      * @beta
      */
 
-    async checkImageEnhance(imageId: string): Promise<ICheckImageEnhanceResponse | string> {
-
-
+    async checkImageEnhance(imageId: string): Promise<ICheckImageEnhanceConfig | string> {
         try {
-            const {data} = await axios.get<ICheckImageEnhanceResponse>(`${this.baseUrl}image/${imageId}`);
-            return data;
+            const response = await fetch(`${this.baseUrl}image/${imageId}`, {
+                method: 'get',
+            });
+            return await response.json()
 
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.log('error message: ', error.message);
-                return error.message;
-            } else {
-                console.log('unexpected error: ', error);
-                return 'An unexpected error occurred';
+            if (error instanceof Error) {
+                console.log(error.message)
             }
         }
-    };
+        return 'An unexpected error occurred'
+
+    }
 
     /**
      * https://api.autoenhance.ai/v2/order/:order_id
@@ -194,18 +191,17 @@ export class Autoenhance {
     async checkOrderEnhance(orderId: string): Promise<ICheckOrderEnhance | string> {
 
         try {
-            const {data} = await axios.get<ICheckOrderEnhance>(`${this.baseUrl}order/${orderId}`);
-            return data;
+            const response = await fetch(`${this.baseUrl}order/${orderId}`, {
+                method: 'get',
+            });
+            return await response.json()
 
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.log('error message: ', error.message);
-                return error.message;
-            } else {
-                console.log('unexpected error: ', error);
-                return 'An unexpected error occurred';
+            if (error instanceof Error) {
+                console.log(error.message)
             }
         }
+        return 'An unexpected error occurred'
     };
 
 
@@ -220,35 +216,27 @@ export class Autoenhance {
      * @param imageId - Id of the uploaded img.
      *
      * @returns
-     * {
-     *     data: <Buffer ff d8 ff e0 00 10 4a 46 49... 47136 more bytes>,
-     *
-     *     status: 200
-     *
+     * ArrayBuffer {
+     *   [Uint8Contents]: <ff d8 ff e00 01 0 03 00 00 00 01 00 02 00 00 ... 52861 more bytes>,
+     *   byteLength: 52961
      * }
-     *
      * @beta
      */
 
-    async previewEnhancedImg(imageId: string): Promise<IPreviewEnhancedImgConfig> {
-        try {
-            const {
-                data: response,
-                status
-            } = await axios.get<IPreviewEnhancedImg>(`${this.baseUrl}image/${imageId}/preview`, {
-                responseType: 'arraybuffer'
-            });
+    async previewEnhancedImg(imageId: string): Promise<Buffer | string> {
 
-            return {data: response.data, status};
+        try {
+            const response = await fetch(`${this.baseUrl}image/${imageId}/preview`, {
+                method: 'get',
+            });
+            return await response.arrayBuffer()
+
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.log('error message: ', error.message);
-                return {error: error.message || ''};
-            } else {
-                console.log('unexpected error: ', error);
-                return {error: 'An unexpected error occurred'};
+            if (error instanceof Error) {
+                console.log(error.message)
             }
         }
+        return 'An unexpected error occurred'
     };
 
     /**
@@ -262,37 +250,28 @@ export class Autoenhance {
      * @param imageId - Id of the uploaded img.
      *
      * @returns
-     * {
-     *     data: <Buffer ff d8 ff e0 00 10 4a 46 49... 47136 more bytes>,
-     *
-     *     status: 200
-     *
+     * ArrayBuffer {
+     *   [Uint8Contents]: <ff d8 ff e00 01 0 03 00 00 00 01 00 02 00 00 ... 52861 more bytes>,
+     *   byteLength: 52961
      * }
-     *
      * @beta
      */
 
-    async webOptimisedImg(imageId: string): Promise<IwebOptimisedImgConfig> {
+    async webOptimisedImg(imageId: string): Promise<Buffer | string> {
+
         try {
-            const {
-                data,
-                status
-            } = await axios.get(`${this.baseUrl}image/${imageId}/enhanced`, {
+            const response = await fetch(`${this.baseUrl}image/${imageId}/enhanced`, {
+                method: 'get',
                 params: {'size': 'small'},
-                responseType: 'arraybuffer'
             });
-            return {data, status};
+            return await response.arrayBuffer()
 
         } catch (error) {
-
-            if (axios.isAxiosError(error)) {
-                console.log('error message: ', error.message);
-                return {error: error.message || ''};
-            } else {
-                console.log('unexpected error: ', error);
-                return {error: 'An unexpected error occurred'};
+            if (error instanceof Error) {
+                console.log(error.message)
             }
         }
+        return 'An unexpected error occurred'
     };
 
 
@@ -307,36 +286,28 @@ export class Autoenhance {
      * @param imageId - Id of the uploaded img.
      *
      * @returns
-     * {
-     *     data: <Buffer ff d8 ff e0 00 10 4a 46 49... 47136 more bytes>,
-     *
-     *     status: 200
-     *
+     * ArrayBuffer {
+     *   [Uint8Contents]: <ff d8 ff e00 01 0 03 00 00 00 01 00 02 00 00 ... 52861 more bytes>,
+     *   byteLength: 52961
      * }
      *
      * @beta
      */
 
-    async fullResolEnhancedImg(imageId: string): Promise<IFullResolEnhancedImgConfig> {
+    async fullResolEnhancedImg(imageId: string): Promise<Buffer | string> {
+
         try {
-            const {
-                data,
-                status
-            } = await axios.get(`${this.baseUrl}image/${imageId}/enhanced`, {
-                responseType: 'arraybuffer'
+            const response = await fetch(`${this.baseUrl}image/${imageId}/enhanced`, {
+                method: 'get',
             });
-            return {data, status};
+            return await response.arrayBuffer()
 
         } catch (error) {
-
-            if (axios.isAxiosError(error)) {
-                console.log('error message: ', error.message);
-                return {error: error.message || ''};
-            } else {
-                console.log('unexpected error: ', error);
-                return {error: 'An unexpected error occurred'};
+            if (error instanceof Error) {
+                console.log(error.message)
             }
         }
+        return 'An unexpected error occurred'
     };
 
 
@@ -400,26 +371,22 @@ export class Autoenhance {
         };
 
         try {
-
-            const {
-                data
-            } = await axios.post<IEditEnhancedImgPromise>(`${this.baseUrl}image/${props.imageId}/process`,
-                body,
-            );
-            return data;
+            const response = await fetch(`${this.baseUrl}image/${props.imageId}/process`, {
+                method: 'post',
+                body: JSON.stringify(body),
+                headers: {
+                    'x-api-key': this.apiKey
+                }
+            });
+            return await response.json()
 
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-
-                console.log('error message: ', error.message);
-                return error.message;
-
-            } else {
-                console.log('unexpected error: ', error);
-
-                return 'An unexpected error occurred';
+            if (error instanceof Error) {
+                console.log(error.message)
             }
         }
+        return 'An unexpected error occurred'
+
     };
 
 
@@ -443,13 +410,12 @@ export class Autoenhance {
      *
      *
      * @returns
-     * { response: { message: 'successfully reported image' }, status: 200 }
+     *  { message: 'successfully reported image' }
      *
      * @beta
      */
 
-    async reportEnhancement(props: IReportEnhancement): Promise<IReportEnhancementPromise | { error: string }> {
-
+    async reportEnhancement(props: IReportEnhancement): Promise<string> {
 
         const body = {
             'category': props.category,
@@ -458,25 +424,21 @@ export class Autoenhance {
         };
 
         try {
-
-            const {
-                data: response, status
-            } = await axios.post<{ message: string }>(`${this.baseUrl}image/${props.imageId}/report`, body);
-
-            return {response, status};
+            const response = await fetch(`${this.baseUrl}image/${props.imageId}/report`, {
+                method: 'post',
+                body: JSON.stringify(body),
+                headers: {
+                    'x-api-key': this.apiKey
+                }
+            });
+            return await response.json()
 
         } catch (error) {
-
-            if (axios.isAxiosError(error)) {
-
-                console.log('error message: ', error.message);
-                return {error: error.message || ''};
-
-            } else {
-                console.log('unexpected error: ', error);
-                return {error: 'An unexpected error occurred'};
+            if (error instanceof Error) {
+                console.log(error.message)
             }
         }
+        return 'An unexpected error occurred'
     };
 
 
